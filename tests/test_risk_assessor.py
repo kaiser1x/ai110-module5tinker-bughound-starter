@@ -36,6 +36,33 @@ def test_high_severity_issue_drives_score_down():
     assert risk["level"] in ("medium", "high")
 
 
+def test_tightened_low_threshold_blocks_autofix_at_score_80():
+    # Guardrail change: "low" risk (and therefore autofix) now requires
+    # score >= 90, not >= 75. A single Medium-severity issue with no other
+    # deductions lands at score 80 -- previously autofixed, now must not be.
+    original = "def f():\n    return 1\n"
+    fixed = "def f():\n    return 1\n"
+    risk = assess_risk(
+        original_code=original,
+        fixed_code=fixed,
+        issues=[{"type": "Maintainability", "severity": "Medium", "msg": "TODO left in code"}],
+    )
+    assert risk["score"] == 80
+    assert risk["level"] == "medium"
+    assert risk["should_autofix"] is False
+
+
+def test_high_severity_issue_blocks_autofix_regardless_of_score():
+    original = "def f():\n    return 1\n"
+    fixed = "def f():\n    return 1\n"
+    risk = assess_risk(
+        original_code=original,
+        fixed_code=fixed,
+        issues=[{"type": "Reliability", "severity": "High", "msg": "test"}],
+    )
+    assert risk["should_autofix"] is False
+
+
 def test_missing_return_is_penalized():
     original = "def f(x):\n    return x + 1\n"
     fixed = "def f(x):\n    x + 1\n"

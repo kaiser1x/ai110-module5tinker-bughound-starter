@@ -70,7 +70,7 @@ def assess_risk(
     # ----------------------------
     # Risk level
     # ----------------------------
-    if score >= 75:
+    if score >= 90:
         level = "low"
     elif score >= 40:
         level = "medium"
@@ -80,7 +80,11 @@ def assess_risk(
     # ----------------------------
     # Auto-fix policy
     # ----------------------------
-    should_autofix = level == "low"
+    has_high_severity_issue = any(str(i.get("severity", "")).lower() == "high" for i in issues)
+    should_autofix = level == "low" and not has_high_severity_issue
+
+    if has_high_severity_issue and level == "low":
+        reasons.append("Auto-fix blocked: at least one High severity issue requires human review regardless of score.")
 
     if not reasons:
         reasons.append("No significant risks detected.")
