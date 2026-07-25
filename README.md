@@ -94,6 +94,12 @@ BugHound will now use Gemini for analysis and fix generation, while still applyi
 
 ---
 
+## Instructor Summary
+
+The core concept here is that "agentic" doesn't mean "trust the LLM more" — it means adding explicit workflow steps (analyze, act, test, reflect) so the system can catch and reject its own bad output, whether that output comes from an LLM or a heuristic. Students most often struggle at the boundary between the risk score and the auto-fix decision: they read the score as "how buggy is the original code" when it actually measures "how safe is this specific fix to auto-apply," and those two things diverge whenever the fixer does something unexpected. AI assistance was genuinely helpful for tracing control flow across `bughound_agent.py` and `risk_assessor.py` quickly, but misleading when asked to explain *why* a given score came out a certain way without first being shown the actual fixed_code — it will confidently rationalize a score against the wrong inputs if you let it guess instead of checking the diff. A good way to guide a student stuck here without giving the answer: ask them to compare the "Detected issues" panel against the "Proposed fix" diff side by side and describe, in their own words, whether the fix shown could plausibly justify every reason listed in the risk report — if it can't, the bug is upstream of the risk assessor, not in it.
+
+---
+
 ## Running Tests
 
 Tests focus on **reliability logic** and **agent behavior**, not the UI.
